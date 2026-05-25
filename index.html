@@ -9,10 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Meddon&family=Marck+Script&display=swap" rel="stylesheet">
 <script src="project/image-slot.js"></script>
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script type="text/babel" src="project/tweaks-panel.jsx"></script>
 <style>
   :root {
     --bg-top: #075948;
@@ -105,7 +101,7 @@
   }
   .hero__names {
     position: absolute;
-    left: 0; right: 0; top: var(--hero-top, 58%);
+    left: 0; right: 0; top: 38%;
     text-align: center;
     font-family: "Meddon", cursive;
     color: rgba(255,255,255,0.95);
@@ -1019,51 +1015,6 @@ I love you &amp; us!</div>
     e.stopPropagation();
     letter.classList.remove('open');
   });
-})();
-</script>
-<div id="tweaks-root"></div>
-<script type="text/babel">
-(function () {
-  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-    "heroTop": 38,
-    "heroSize": 6.2,
-    "subBottom": 18,
-    "subShow": true
-  }/*EDITMODE-END*/;
-
-  function App() {
-    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
-    React.useEffect(() => {
-      const r = document.documentElement.style;
-      r.setProperty('--hero-top', t.heroTop + '%');
-      r.setProperty('--hero-size', t.heroSize + 'vw');
-      const sub = document.querySelector('.hero__sub');
-      if (sub) {
-        sub.style.bottom = t.subBottom + '%';
-        sub.style.display = t.subShow ? '' : 'none';
-      }
-    }, [t]);
-    return (
-      <TweaksPanel title="Tweaks">
-        <TweakSection title="Hero title">
-          <TweakSlider label="Vertical position" value={t.heroTop}
-            min={5} max={85} step={1} suffix="%"
-            onChange={v => setTweak('heroTop', v)} />
-          <TweakSlider label="Title size" value={t.heroSize}
-            min={3} max={14} step={0.1} suffix="vw"
-            onChange={v => setTweak('heroSize', v)} />
-        </TweakSection>
-        <TweakSection title="Subtitle">
-          <TweakToggle label="Show subtitle" value={t.subShow}
-            onChange={v => setTweak('subShow', v)} />
-          <TweakSlider label="Distance from bottom" value={t.subBottom}
-            min={4} max={40} step={1} suffix="%"
-            onChange={v => setTweak('subBottom', v)} />
-        </TweakSection>
-      </TweaksPanel>
-    );
-  }
-  ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<App />);
 })();
 </script>
 </body>
