@@ -866,8 +866,6 @@ shorts worth it</div>
              id="letterPaper">
           <div class="letter__paper-text"
                id="letterPaperText"
-               contenteditable="true"
-               spellcheck="false"
                data-placeholder="My dearest Sergey,&#10;…"></div>
           <button class="letter__close" id="letterClose" aria-label="close">×</button>
         </div>
@@ -1012,15 +1010,10 @@ I love you &amp; us!</div>
   const DEFAULT_LETTER = 'My dearest Serezhа.<br><br>Thank you so much for always making me laugh, loving me and making me the happiest girl in the world. Sorry for my doubts and moody changes in mood. Thank you for always listening to me and being so patient.<br><br>I mustve done something good in my previous life to deserve such an incredible man like you. I love you and our life together and I will cherish it forever.<br><br>Snezhok<br>May 20, 2026';
   paperText.innerHTML = localStorage.getItem(KEY) || DEFAULT_LETTER;
 
-  paperText.addEventListener('input', () => {
-    localStorage.setItem(KEY, paperText.innerHTML);
-  });
-
   env.addEventListener('click', (e) => {
     if (letter.classList.contains('open')) return;
     if (e.target === closeBtn) return;
     letter.classList.add('open');
-    setTimeout(() => paperText.focus(), 700);
   });
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
