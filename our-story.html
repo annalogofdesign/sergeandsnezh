@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Our Story · Sergey &amp; Snezhok</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Meddon&family=Marck+Script&display=swap" rel="stylesheet">
+<script src="project/image-slot.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="project/tweaks-panel.jsx"></script>
+<style>
+  :root {
+    --bg-top: #075948;
+    --bg-bot: #132932;
+    --ink: #ffffff;
+    --ink-soft: rgba(255,255,255,0.75);
+    --ink-ghost: rgba(255,255,255,0.18);
+    --pink: rgba(254,202,202,0.55);
+    --violet: rgba(163,124,255,0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #08222a; color: var(--ink); overflow-x: hidden; }
+  body {
+    font-family: "Marck Script", cursive;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  /* ───────────────── Atmosphere (full-page fixed) ───────────────── */
+  .atmosphere {
+    position: fixed; inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 40%, #0a6655 0%, #075948 35%, #132932 100%);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .atmosphere::after { /* subtle film grain */
+    content: ""; position: absolute; inset: -50%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: .6; mix-blend-mode: overlay;
+  }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(40px);
+    will-change: transform; pointer-events: none;
+  }
+  .blob.b1 { width: 720px; height: 720px; left: -160px; top: 18%;
+    background: radial-gradient(circle at 30% 30%, rgba(0,152,122,0.55), rgba(0,152,122,0) 60%); }
+  .blob.b2 { width: 880px; height: 880px; right: -240px; top: 42%;
+    background: radial-gradient(circle at 50% 50%, var(--violet), rgba(94,0,138,0) 65%); }
+  .blob.b3 { width: 540px; height: 540px; left: 28%; top: 70%;
+    background: radial-gradient(circle at 50% 50%, var(--pink), rgba(254,202,202,0) 65%); }
+
+  .stars { position: absolute; inset: 0; }
+  .star {
+    position: absolute; width: 2px; height: 2px; border-radius: 50%;
+    background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.9);
+    opacity: .0; animation: twinkle linear infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(.6); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  /* slow drifting cloud images */
+  .cloud {
+    position: absolute; pointer-events: none;
+    background: url("project/assets/cloud.png") center / contain no-repeat;
+    opacity: 0; mix-blend-mode: screen;
+    will-change: transform;
+  }
+
+  /* ───────────────── Layout ───────────────── */
+  main {
+    position: relative; z-index: 2;
+    max-width: 1440px; margin: 0 auto;
+  }
+
+  /* ───────────── Hero ───────────── */
+  .hero {
+    position: relative;
+    height: 100vh; min-height: 720px;
+    overflow: hidden;
+    isolation: isolate;
+    /* break out of main's max-width so photo always spans full viewport */
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+  }
+  .hero__photo {
+    position: absolute; inset: 0;
+    background: url("project/assets/hero-sky.jpg") center center / cover no-repeat;
+    will-change: transform;
+  }
+  .hero__photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, rgba(7,89,76,0.0) 30%, #132932 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.15));
+  }
+  .hero__names {
+    position: absolute;
+    left: 0; right: 0; top: var(--hero-top, 58%);
+    text-align: center;
+    font-family: "Meddon", cursive;
+    color: rgba(255,255,255,0.95);
+    mix-blend-mode: screen;
+    text-shadow: 0 6px 36px rgba(0,0,0,0.35), 0 2px 12px rgba(255,255,255,0.18);
+    line-height: 1.15;
+    padding: 0 3vw;
+    white-space: nowrap;
+    overflow: visible;
+  }
+  .hero__names .row { display: block; }
+  .hero__names .name {
+    display: inline-block;
+    font-size: clamp(40px, var(--hero-size, 6.2vw), 96px);
+    letter-spacing: -0.01em;
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(10px);
+    animation: nameIn 2.4s cubic-bezier(.2,.7,.2,1) .3s forwards;
+  }
+  .hero__names .amp {
+    display: inline-block;
+    font-size: clamp(40px, var(--hero-size, 6.2vw), 96px);
+    margin: 0 .25em;
+    opacity: 0;
+    transform: translateY(20px) rotate(-6deg) scale(.7);
+    animation: ampIn 1.6s cubic-bezier(.2,.7,.2,1) 1.4s forwards;
+  }
+  .hero__names .name.right {
+    animation-delay: 2.0s;
+  }
+  @keyframes nameIn {
+    0% { opacity: 0; transform: translateY(40px); filter: blur(14px); }
+    60% { opacity: .9; filter: blur(2px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+  }
+  @keyframes ampIn {
+    0% { opacity: 0; transform: translateY(20px) rotate(-6deg) scale(.7); }
+    100% { opacity: 1; transform: translateY(0) rotate(0) scale(1); }
+  }
+
+  .hero__sub {
+    position: absolute; left: 0; right: 0; bottom: 18%;
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-size: 26px;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    animation: fadeIn 1.6s ease 3.4s forwards;
+  }
+  .hero__sub::before, .hero__sub::after {
+    content: "";
+    display: inline-block;
+    width: 60px; height: 1px;
+    background: rgba(255,255,255,0.5);
+    vertical-align: middle;
+    margin: 0 16px;
+  }
+  .hero__scroll {
+    position: absolute; left: 50%; bottom: 40px;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.7);
+    font-size: 20px;
+    opacity: 0;
+    animation: fadeIn 1.6s ease 4.0s forwards, bob 2.6s ease-in-out 4.6s infinite;
+    text-align: center;
+  }
+  .hero__scroll .arrow {
+    display: block; margin: 8px auto 0; width: 1px; height: 36px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,.8));
+  }
+  @keyframes bob {
+    0%,100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 10px); }
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ───────────── Timeline ───────────── */
+  .timeline {
+    position: relative;
+    padding: 80px 0 160px;
+  }
+  /* Center spine — dashed line + progress overlay */
+  .spine {
+    position: absolute;
+    left: 50%; top: 0; bottom: 0;
+    transform: translateX(-50%);
+    width: 2px;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,.28) 50%, transparent 50%);
+    background-size: 2px 16px;
+    background-repeat: repeat-y;
+  }
+  .spine__fill {
+    position: absolute; top: 0; left: 0; width: 100%;
+    height: 0;
+    background-image: linear-gradient(to bottom, rgba(255,255,255,.95) 50%, transparent 50%);
+    background-size: 2px 16px;
+    background-repeat: repeat-y;
+    box-shadow: 0 0 14px rgba(255,255,255,.55);
+    transition: height .12s linear;
+  }
+  .spine__head {
+    position: absolute; left: 50%; transform: translate(-50%, -50%);
+    top: 0;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.2) 60%, rgba(255,255,255,0) 75%);
+    box-shadow: 0 0 30px rgba(255,255,255,.9), 0 0 60px rgba(255,255,255,.4);
+    opacity: 0;
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 140px minmax(0,1fr);
+    align-items: center;
+    padding: 80px 0;
+    min-height: 280px;
+  }
+  .row .marker {
+    position: relative;
+    justify-self: center;
+    width: 16px; height: 16px;
+  }
+  .marker__ring { position: absolute; inset: 0; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .marker__dot {
+    position: absolute; inset: 4px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 18px rgba(255,255,255,.8);
+    transform: scale(0); transition: transform .8s cubic-bezier(.2,.7,.2,1);
+  }
+  .row.in .marker__dot { transform: scale(1); }
+  .row.in .marker__ring { animation: pulse 2.6s ease-out infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,255,255,.5); }
+    100% { box-shadow: 0 0 0 28px rgba(255,255,255,0); }
+  }
+
+  .row .label {
+    font-family: "Marck Script", cursive;
+    font-size: clamp(36px, 4vw, 56px);
+    line-height: 1.1;
+    color: var(--ink);
+    text-shadow: 0 2px 20px rgba(0,0,0,.35);
+    opacity: 0;
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+    max-width: 12ch;
+    text-wrap: balance;
+  }
+  .row .photo {
+    opacity: 0;
+    transition: opacity 1.4s ease, transform 1.4s cubic-bezier(.2,.7,.2,1);
+    will-change: transform, opacity;
+  }
+  .row.left .label  { grid-column: 1; text-align: right; padding-right: 24px; transform: translateX(-40px); justify-self: end; max-width: 100%; }
+  .row.left .photo  { grid-column: 3; justify-self: start; padding-left: 24px; transform: translate(40px, 30px) rotate(4deg); }
+  .row.right .label { grid-column: 3; text-align: left;  padding-left: 24px;  transform: translateX(40px); justify-self: start; max-width: 100%; }
+  .row.right .photo { grid-column: 1; justify-self: end; padding-right: 24px; transform: translate(-40px, 30px) rotate(-4deg); }
+  .row.in .label { opacity: 1; transform: translateX(0); }
+  .row.in .photo { opacity: 1; }
+  .row.left.in .photo { transform: translate(0, 0) rotate(3deg); }
+  .row.right.in .photo { transform: translate(0, 0) rotate(-3deg); }
+
+  /* Polaroid frame */
+  .polaroid {
+    position: relative;
+    padding: 16px 16px 64px;
+    background: #f6efe2;
+    border-radius: 4px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.4) inset,
+      0 30px 60px -20px rgba(0,0,0,.6),
+      0 12px 30px -8px rgba(0,0,0,.45);
+    transition: transform .8s cubic-bezier(.2,.7,.2,1);
+    --tilt: -3deg;
+    transform: rotate(var(--tilt));
+  }
+  .polaroid:hover { transform: rotate(0deg) translateY(-6px) scale(1.02); }
+  .polaroid .caption {
+    position: absolute; left: 0; right: 0; bottom: 16px;
+    text-align: center;
+    color: #2b3a3f;
+    font-family: "Marck Script", cursive;
+    font-size: 22px;
+  }
+  .polaroid image-slot, .polaroid .imgwrap {
+    display: block;
+    width: 360px; height: 240px;
+    background: #0a3b3a;
+  }
+  .polaroid.portrait image-slot, .polaroid.portrait .imgwrap {
+    width: 280px; height: 380px;
+  }
+  .polaroid .imgwrap {
+    background: center / cover no-repeat;
+  }
+
+  /* The "day 0" first message bubble */
+  .day0 {
+    position: relative; padding: 120px 0 40px;
+    text-align: center;
+  }
+  .day0__label {
+    display: inline-block;
+    font-family: "Marck Script", cursive;
+    font-size: 56px;
+    color: rgba(255,255,255,0.85);
+    mix-blend-mode: overlay;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .day0.in .day0__label { opacity: 1; transform: translateY(0); }
+  .day0__bubble {
+    margin: 28px auto 0;
+    max-width: 460px;
+    background: rgba(255,255,255,0.96);
+    color: #1d2a30;
+    border-radius: 20px 20px 20px 6px;
+    padding: 18px 22px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial;
+    font-size: 16px; line-height: 1.45;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,.6);
+    text-align: left;
+    opacity: 0;
+    transform: translateY(20px) scale(.96);
+    transition: opacity 1.2s ease .25s, transform 1.2s cubic-bezier(.2,.7,.2,1) .25s;
+  }
+  .day0.in .day0__bubble { opacity: 1; transform: translateY(0) scale(1); }
+  .day0__bubble image-slot.avatar {
+    display: block; float: left;
+    width: 36px; height: 36px;
+    margin-right: 12px;
+  }
+  .day0__bubble .who {
+    font-weight: 600; font-size: 13px; color:#5e6a72;
+    margin-bottom: 2px;
+  }
+
+  /* ───────────── Outro ───────────── */
+  .outro {
+    position: relative;
+    padding: 200px 0 240px;
+    text-align: center;
+    z-index: 3;
+  }
+  .outro__big {
+    font-family: "Meddon", cursive;
+    font-size: clamp(60px, 9vw, 140px);
+    line-height: 1.05;
+    color: rgba(255,255,255,0.95);
+    text-shadow: 0 4px 40px rgba(255,255,255,0.15);
+    margin: 0 auto;
+    max-width: 1100px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 2s ease, transform 2s cubic-bezier(.2,.7,.2,1);
+  }
+  .outro.in .outro__big { opacity: 1; transform: translateY(0); }
+
+  /* ── Letter to Sergey ── */
+  .letter {
+    position: relative;
+    width: min(520px, 92%);
+    margin: 0 auto 100px;
+    perspective: 1400px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1.6s ease .2s, transform 1.6s cubic-bezier(.2,.7,.2,1) .2s;
+  }
+  .outro.in .letter { opacity: 1; transform: translateY(0); }
+
+  .letter__env {
+    position: relative;
+    width: 100%; aspect-ratio: 16 / 10;
+    background: linear-gradient(180deg, #f6e9d2 0%, #ecd8b3 100%);
+    border-radius: 6px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.4) inset,
+      0 30px 60px -20px rgba(0,0,0,.6),
+      0 12px 30px -8px rgba(0,0,0,.45);
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.2,.7,.2,1);
+    animation: letterFloat 5s ease-in-out infinite;
+  }
+  @keyframes letterFloat {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+  }
+  .letter__env::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(135deg, transparent 49.5%, rgba(0,0,0,.08) 50%, transparent 50.5%),
+      linear-gradient(-135deg, transparent 49.5%, rgba(0,0,0,.08) 50%, transparent 50.5%);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .letter__flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 60%;
+    background: linear-gradient(180deg, #e8d3a5 0%, #d8bd83 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transform: rotateX(0deg);
+    transition: transform .9s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 4px 8px -4px rgba(0,0,0,.3);
+    z-index: 3;
+  }
+  .letter__seal {
+    position: absolute;
+    left: 50%; top: 52%;
+    transform: translate(-50%, -50%);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #d04a4a, #8a1a1a 70%, #5c0808 100%);
+    box-shadow:
+      0 4px 10px rgba(0,0,0,.4),
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -3px 6px rgba(0,0,0,.3);
+    z-index: 4;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.85);
+    font-family: "Meddon", cursive;
+    font-size: 28px;
+    line-height: 1;
+    transition: transform .6s ease, opacity .6s ease;
+  }
+  .letter__hint {
+    position: absolute;
+    left: 50%; bottom: -34px;
+    transform: translateX(-50%);
+    font-family: "Marck Script", cursive;
+    font-size: 22px;
+    color: rgba(255,255,255,.7);
+    white-space: nowrap;
+    transition: opacity .4s ease;
+  }
+
+  .letter.open .letter__env { animation: none; cursor: default; transform: translateY(0) rotate(0); }
+  .letter.open .letter__flap { transform: rotateX(-180deg); }
+  .letter.open .letter__seal { transform: translate(-50%, -50%) scale(.4) rotate(-15deg); opacity: 0; }
+  .letter.open .letter__hint { opacity: 0; pointer-events: none; }
+
+  .letter__paper {
+    position: absolute;
+    left: 5%; right: 5%;
+    top: 8%;
+    background: #fdfaf2;
+    background-image:
+      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(120,90,60,.18) 32px);
+    border-radius: 4px;
+    padding: 30px 32px;
+    box-shadow: 0 14px 30px -8px rgba(0,0,0,.35);
+    transform-origin: top center;
+    transform: translateY(0) scaleY(.02);
+    opacity: 0;
+    transition: transform 1s cubic-bezier(.2,.7,.2,1) .25s, opacity .4s ease .25s, top 1s ease .25s;
+    z-index: 2;
+    color: #3a2a1a;
+    font-family: "Marck Script", cursive;
+    font-size: 24px;
+    line-height: 32px;
+    min-height: 280px;
+  }
+  .letter.open .letter__paper {
+    transform: translateY(-30px) scaleY(1);
+    opacity: 1;
+    top: -10px;
+    z-index: 5;
+  }
+  .letter__paper:focus { outline: none; }
+  .letter__paper-text { outline: none; min-height: 240px; }
+  .letter__paper-text:empty::before {
+    content: attr(data-placeholder);
+    color: rgba(58,42,26,.45);
+    white-space: pre-line;
+  }
+  .letter__close {
+    position: absolute; right: 8px; top: 8px;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(58,42,26,.12); color: #3a2a1a;
+    border: none; cursor: pointer;
+    font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .4s ease .6s;
+    z-index: 10;
+  }
+  .letter__close:hover { background: rgba(58,42,26,.22); }
+  .letter.open .letter__close { opacity: 1; pointer-events: auto; }
+
+  .outro__date {
+    margin-top: 60px;
+    font-family: "Marck Script", cursive;
+    font-size: 40px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 2s ease .8s;
+  }
+  .outro.in .outro__date { opacity: 1; }
+  .outro__heart {
+    margin: 50px auto 0;
+    width: 64px; height: 64px; opacity: 0;
+    transition: opacity 1.6s ease 1.4s, transform 1.6s ease 1.4s;
+    transform: scale(.6);
+  }
+  .outro.in .outro__heart { opacity: 1; transform: scale(1); animation: heartbeat 2.4s ease-in-out 3s infinite; }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.12); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.08); }
+  }
+
+  /* Polaroid cluster — stacks multiple polaroids in one cell, slight scatter */
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 0;
+    justify-content: center;
+    align-items: flex-start;
+    max-width: 560px;
+  }
+  .cluster .polaroid {
+    margin: 6px -28px; /* deliberate overlap */
+    z-index: 1;
+  }
+  .cluster .polaroid:nth-child(2) { z-index: 2; transform: rotate(var(--tilt)) translateY(20px); }
+  .cluster .polaroid:nth-child(3) { z-index: 3; transform: rotate(var(--tilt)) translateY(-10px); }
+  .cluster .polaroid:nth-child(4) { z-index: 4; transform: rotate(var(--tilt)) translateY(28px); }
+  .cluster .polaroid:hover { z-index: 10; }
+  .cluster .polaroid image-slot,
+  .cluster .polaroid .imgwrap { width: 240px; height: 170px; }
+  .cluster .polaroid.portrait image-slot,
+  .cluster .polaroid.portrait .imgwrap { width: 200px; height: 270px; }
+
+  /* Free-form gallery between milestones */
+  .gallery {
+    position: relative;
+    padding: 120px 60px 80px;
+    text-align: center;
+  }
+  .gallery__title {
+    font-family: "Marck Script", cursive;
+    font-size: clamp(32px, 4vw, 52px);
+    color: rgba(255,255,255,0.85);
+    mix-blend-mode: overlay;
+    margin-bottom: 60px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .gallery.in .gallery__title { opacity: 1; transform: translateY(0); }
+  .gallery__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .gallery__grid .polaroid {
+    opacity: 0;
+    transform: translateY(40px) rotate(var(--tilt)) scale(.92);
+    transition: opacity 1.4s ease, transform 1.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .gallery.in .gallery__grid .polaroid {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--tilt)) scale(1);
+  }
+  .gallery.in .gallery__grid .polaroid:nth-child(1) { transition-delay: 0.05s; }
+  .gallery.in .gallery__grid .polaroid:nth-child(2) { transition-delay: 0.20s; }
+  .gallery.in .gallery__grid .polaroid:nth-child(3) { transition-delay: 0.35s; }
+  .gallery.in .gallery__grid .polaroid:nth-child(4) { transition-delay: 0.50s; }
+  .gallery.in .gallery__grid .polaroid:nth-child(5) { transition-delay: 0.65s; }
+  .gallery__grid .polaroid image-slot,
+  .gallery__grid .polaroid .imgwrap { width: 260px; height: 180px; }
+  .gallery__grid .polaroid.portrait image-slot,
+  .gallery__grid .polaroid.portrait .imgwrap { width: 200px; height: 280px; }
+
+  /* falling petals/sparkles */
+  .sparkle {
+    position: fixed; top: -20px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgba(255,255,255,.9);
+    box-shadow: 0 0 8px rgba(255,255,255,.7);
+    pointer-events: none;
+    z-index: 1;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    0% { transform: translate(0,0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translate(var(--dx), 110vh); opacity: 0; }
+  }
+
+  @media (max-width: 800px) {
+    .row { grid-template-columns: 1fr 40px 1fr; padding: 40px 0; }
+    .row .label { font-size: 32px; padding: 0 12px; }
+    .polaroid image-slot, .polaroid .imgwrap { width: 200px; height: 140px; }
+    .polaroid.portrait image-slot, .polaroid.portrait .imgwrap { width: 180px; height: 240px; }
+    .row.left .label, .row.right .label { padding: 0 8px; }
+    .row.left .photo { padding-left: 8px; }
+    .row.right .photo { padding-right: 8px; }
+    .hero__sub { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────── Atmosphere (fixed bg) ───────── -->
+<div class="atmosphere" aria-hidden="true">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="stars" id="stars"></div>
+  <div class="cloud" id="cloud-a" style="width:520px;height:412px;left:-12%;top:30%;"></div>
+  <div class="cloud" id="cloud-b" style="width:680px;height:540px;right:-18%;top:55%;"></div>
+  <div class="cloud" id="cloud-c" style="width:440px;height:350px;left:30%;top:80%;"></div>
+  <div class="cloud" id="cloud-d" style="width:600px;height:480px;left:-10%;top:130%;"></div>
+  <div class="cloud" id="cloud-e" style="width:520px;height:420px;right:5%;top:175%;"></div>
+</div>
+
+<main>
+
+  <!-- ───────── Hero ───────── -->
+  <section class="hero" aria-label="Sergey and Snezhok">
+    <div class="hero__photo" id="hero-photo"></div>
+    <h1 class="hero__names" aria-label="Sergey & Snezhok">
+      <span class="name">Sergey</span><span class="amp">&amp;</span><span class="name right">Snezhok</span>
+    </h1>
+    <div class="hero__sub">our story · 2025 — 2026</div>
+    <div class="hero__scroll">scroll
+      <span class="arrow"></span>
+    </div>
+  </section>
+
+  <!-- ───────── Timeline ───────── -->
+  <section class="timeline" id="timeline">
+    <div class="spine">
+      <div class="spine__head" id="spineHead"></div>
+      <div class="spine__fill" id="spineFill"></div>
+    </div>
+
+    <!-- day 0 / first message -->
+    <div class="day0 reveal" data-reveal>
+      <div class="day0__label">day 0: may 5, 2025</div>
+      <div class="day0__bubble">
+        <image-slot id="avatar-sergey" class="avatar" placeholder="avatar" shape="circle"></image-slot>
+        <div class="who">Sergey · the first message</div>
+        <div>Привет. Похоже, у нас много общих знакомых, а твой профиль передаёт позитивную энергию. Мне интересно с тобой познакомиться, но мне не нравится идея знакомств в интернете. Подскажешь, в каких кружках тебя можно встретить для личного знакомства?</div>
+      </div>
+    </div>
+
+    <!-- Timeline rows -->
+    <div class="row left reveal" data-reveal>
+      <div class="label">first date: motorcycle &amp; sunset</div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:4deg;">
+          <image-slot id="ms-first-date-1" placeholder="first date #1" shape="rect"></image-slot>
+          <div class="caption">first date</div>
+        </div>
+        <div class="polaroid" style="--tilt:-3deg;">
+          <image-slot id="ms-first-date-2" placeholder="first date #2" shape="rect"></image-slot>
+          <div class="caption">the night of</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="row right reveal" data-reveal>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid portrait" style="--tilt:-5deg;">
+          <div class="imgwrap" style="background-image:url('project/assets/burning-man.jpg');"></div>
+          <div class="caption">exploring the playa</div>
+        </div>
+        <div class="polaroid" style="--tilt:6deg;">
+          <image-slot id="ms-burning-2" placeholder="Burning Man #2" shape="rect"></image-slot>
+          <div class="caption">favorite kiss &lt;3</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:-4deg;">
+          <image-slot id="ms-burning-3" placeholder="Burning Man #3" shape="rect"></image-slot>
+          <div class="caption">on top of our new home</div>
+        </div>
+        <div class="polaroid" style="--tilt:5deg;">
+          <image-slot id="ms-burning-4" placeholder="Burning Man #4" shape="rect"></image-slot>
+          <div class="caption">magical hug moment</div>
+        </div>
+      </div></div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="label">Burning Man: dust, feelings &amp; profound trips </div>
+    </div>
+
+    <div class="row left reveal" data-reveal>
+      <div class="label">Learning to fly<br/>&amp; looking cute</div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="photo"><div class="polaroid" style="--tilt:5deg;">
+        <image-slot id="ms-learning-to-fly" placeholder="learning to fly" shape="rect"></image-slot>
+        <div class="caption">runway smiles</div>
+      </div></div>
+    </div>
+
+    <div class="row right reveal" data-reveal>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:-6deg;">
+          <image-slot id="ms-halloween-1" placeholder="Halloween #1" shape="rect"></image-slot>
+          <div class="caption">trick or treat</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:5deg;">
+          <image-slot id="ms-halloween-2" placeholder="Halloween #2" shape="rect"></image-slot>
+          <div class="caption">what's going onnnn</div>
+        </div>
+        <div class="polaroid" style="--tilt:-4deg;">
+          <image-slot id="ms-halloween-3" placeholder="Halloween #3" shape="rect"></image-slot>
+          <div class="caption">the wild party</div>
+        </div>
+      </div></div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="label">Hosting &amp; celebrating
+Halloween</div>
+    </div>
+
+    <div class="row left reveal" data-reveal>
+      <div class="label">Christmas&nbsp;&amp;<br/>New&nbsp;York</div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:3deg;">
+          <image-slot id="ms-christmas-1" placeholder="Christmas sweaters" shape="rect"></image-slot>
+          <div class="caption">reindeer &amp; grinch </div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:-4deg;">
+          <image-slot id="ms-ny-1" placeholder="New York" shape="rect"></image-slot>
+          <div class="caption">exploring Brooklyn</div>
+        </div>
+        <div class="polaroid" style="--tilt:5deg;">
+          <image-slot id="ms-ny-2" placeholder="NYC lights" shape="rect"></image-slot>
+          <div class="caption">merry drinking</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="row right reveal" data-reveal>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid portrait" style="--tilt:-5deg;">
+          <image-slot id="ms-photoshoot-1" placeholder="photoshoot #1" shape="rect"></image-slot>
+          <div class="caption">golden hour kissy</div>
+        </div>
+        <div class="polaroid" style="--tilt:4deg;">
+          <image-slot id="ms-photoshoot-2" placeholder="photoshoot #2" shape="rect"></image-slot>
+          <div class="caption">us, posed</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:-3deg;">
+          <image-slot id="ms-photoshoot-3" placeholder="photoshoot #3" shape="rect"></image-slot>
+          <div class="caption">love our hugs</div>
+        </div>
+      </div></div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="label">Photoshoot: memories
+for the lifetime</div>
+    </div>
+
+    <div class="row left reveal" data-reveal>
+      <div class="label" style="width: 400px">Moving out, in &amp;
+building a home
+together</div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:4deg;">
+          <image-slot id="ms-moving-in" placeholder="our place" shape="rect"></image-slot>
+          <div class="caption">uhaul &amp; boxes romance</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:-5deg;">
+          <image-slot id="ms-moving-in-2" placeholder="unpacking boxes" shape="rect"></image-slot>
+          <div class="caption">boxes, drill &amp; cider</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="row right reveal" data-reveal>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:-5deg;">
+          <image-slot id="ms-big-bend-1" placeholder="Big Bend" shape="rect"></image-slot>
+          <div class="caption">ambitious hike</div>
+        </div>
+        <div class="polaroid" style="--tilt: 5deg; height: 290px">
+          <image-slot id="ms-big-bend-2" placeholder="Mexico" shape="rect" style="height: 190px"></image-slot>
+          <div class="caption">donkeys &amp; tequila at the border</div>
+        </div>
+      </div></div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="label">Big&nbsp;Bend&nbsp;&amp;<br/>Mexico</div>
+    </div>
+
+    <div class="row left reveal" data-reveal>
+      <div class="label" style="width: 320px">Berlin &amp;
+Switzerland
+trip</div>
+      <div class="marker"><div class="marker__ring"></div><div class="marker__dot"></div></div>
+      <div class="photo"><div class="cluster">
+        <div class="polaroid" style="--tilt:6deg;">
+          <image-slot id="ms-berlin-1" placeholder="Berlin" shape="rect"></image-slot>
+          <div class="caption">spicy Berlin ;)</div>
+        </div>
+        <div class="polaroid" style="--tilt:-4deg;">
+          <image-slot id="ms-berlin-2" placeholder="Berlin streets" shape="rect"></image-slot>
+          <div class="caption">swiss coffee with a view</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt: 8deg; height: 360px">
+          <image-slot id="ms-swiss-1" placeholder="Switzerland" shape="rect"></image-slot>
+          <div class="caption">making the 150euro
+shorts worth it</div>
+        </div>
+        <div class="polaroid" style="--tilt:-7deg;">
+          <image-slot id="ms-swiss-2" placeholder="alps" shape="rect"></image-slot>
+          <div class="caption">high on Jägermeister smiles</div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- Gallery: more memories between Berlin and Today -->
+    <div class="gallery reveal" data-reveal>
+      <div class="gallery__title">more&nbsp;little&nbsp;things</div>
+      <div class="gallery__grid">
+        <div class="polaroid" style="--tilt:-7deg;">
+          <image-slot id="ms-extra-1" placeholder="a small thing" shape="rect"></image-slot>
+          <div class="caption">cuties at the RAYE concert</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:5deg;">
+          <image-slot id="ms-extra-2" placeholder="another moment" shape="rect"></image-slot>
+          <div class="caption">holding me tight at F1</div>
+        </div>
+        <div class="polaroid" style="--tilt: -3deg; height: 280px">
+          <image-slot id="ms-extra-3" placeholder="a sunday" shape="rect"></image-slot>
+          <div class="caption">road trip with the biggest whiner (we love him still)</div>
+        </div>
+        <div class="polaroid" style="--tilt:8deg;">
+          <image-slot id="ms-extra-4" placeholder="a road trip" shape="rect"></image-slot>
+          <div class="caption">TEA time</div>
+        </div>
+        <div class="polaroid portrait" style="--tilt:-6deg;">
+          <image-slot id="ms-extra-5" placeholder="a quiet day" shape="rect"></image-slot>
+          <div class="caption">one of many sunsets</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ───────── Outro ───────── -->
+  <section class="outro reveal" data-reveal>
+    <div class="letter" id="letter">
+      <div class="letter__env" id="letterEnv">
+        <div class="letter__paper" id="letterPaper">
+          <div class="letter__paper-text"
+               id="letterPaperText"
+               contenteditable="true"
+               spellcheck="false"
+               data-placeholder="My dearest Sergey,&#10;…"></div>
+          <button class="letter__close" id="letterClose" aria-label="close">×</button>
+        </div>
+        <div class="letter__flap"></div>
+        <div class="letter__seal">S</div>
+      </div>
+      <div class="letter__hint">click to open · a letter for you</div>
+    </div>
+
+    <div class="outro__big" style="font-size: 94px; line-height: 1.5">To many more years together.
+I love you &amp; us!</div>
+
+    <div class="outro__date">— our anniversary, May 2026 —</div>
+    <svg class="outro__heart" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 28s-11-7.2-11-15.2C5 8 8.4 5 12.2 5c2.3 0 3.9 1.2 3.8 1.1C16 6 17.6 5 19.8 5 23.6 5 27 8 27 12.8 27 20.8 16 28 16 28z"
+        fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+  </section>
+</main>
+
+<script>
+(function () {
+  // ── starfield
+  const starsHost = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top  = Math.random() * 100 + '%';
+    s.style.animationDuration = (2.5 + Math.random() * 5) + 's';
+    s.style.animationDelay = (Math.random() * 6) + 's';
+    s.style.width = s.style.height = (1 + Math.random() * 2.5).toFixed(1) + 'px';
+    starsHost.appendChild(s);
+  }
+
+  // ── sparkles falling
+  function spawnSparkle() {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const x = Math.random() * window.innerWidth;
+    s.style.left = x + 'px';
+    s.style.setProperty('--dx', ((Math.random() - 0.5) * 200) + 'px');
+    s.style.animationDuration = (10 + Math.random() * 10) + 's';
+    s.style.opacity = (0.4 + Math.random() * 0.6).toFixed(2);
+    const size = (1 + Math.random() * 2.5).toFixed(1);
+    s.style.width = size + 'px'; s.style.height = size + 'px';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 22000);
+  }
+  setInterval(spawnSparkle, 380);
+
+  // ── parallax (clouds + blobs + hero)
+  const heroPhoto = document.getElementById('hero-photo');
+  const clouds = [
+    { el: document.getElementById('cloud-a'), speed: 0.04, drift: 0.06, base: 0 },
+    { el: document.getElementById('cloud-b'), speed: 0.06, drift: -0.04, base: 0 },
+    { el: document.getElementById('cloud-c'), speed: 0.10, drift: 0.05, base: 0 },
+    { el: document.getElementById('cloud-d'), speed: 0.08, drift: -0.07, base: 0 },
+    { el: document.getElementById('cloud-e'), speed: 0.05, drift: 0.04, base: 0 },
+  ];
+  // fade clouds in
+  setTimeout(() => clouds.forEach((c, i) => { c.el.style.transition = 'opacity 2.4s ease'; c.el.style.opacity = (0.55 - i*0.04).toFixed(2); }), 600);
+
+  const blobs = [
+    { el: document.querySelector('.blob.b1'), speed: 0.04 },
+    { el: document.querySelector('.blob.b2'), speed: 0.07 },
+    { el: document.querySelector('.blob.b3'), speed: 0.10 },
+  ];
+
+  const spineFill = document.getElementById('spineFill');
+  const spineHead = document.getElementById('spineHead');
+  const timeline = document.getElementById('timeline');
+
+  let lastY = -1;
+  let t = 0;
+  function frame() {
+    t += 1;
+    const y = window.scrollY || 0;
+
+    // Hero parallax — sink as we scroll (no scale, so photo always fits)
+    if (heroPhoto) {
+      const k = Math.min(1, y / window.innerHeight);
+      heroPhoto.style.transform = `translateY(${y * 0.18}px)`;
+      heroPhoto.style.filter = `brightness(${1 - k * 0.25})`;
+    }
+
+    // Clouds drift horizontally + parallax vertical
+    clouds.forEach((c, i) => {
+      if (!c.el) return;
+      const driftX = Math.sin(t * 0.0015 + i) * 30 * (1 + i * 0.2);
+      const ty = -y * c.speed;
+      c.el.style.transform = `translate3d(${driftX}px, ${ty}px, 0)`;
+    });
+
+    // Blobs — slow drift
+    blobs.forEach((b, i) => {
+      if (!b.el) return;
+      const ty = -y * b.speed;
+      const tx = Math.sin(t * 0.0008 + i * 1.7) * 40;
+      b.el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+    });
+
+    // Spine fill — track scroll relative to timeline
+    if (timeline && spineFill) {
+      const r = timeline.getBoundingClientRect();
+      const total = r.height;
+      const seen = Math.max(0, Math.min(total, (window.innerHeight * 0.55) - r.top));
+      const pct = total > 0 ? (seen / total) * 100 : 0;
+      spineFill.style.height = pct.toFixed(2) + '%';
+      spineHead.style.opacity = pct > 0.5 ? 1 : 0;
+      spineHead.style.top = pct.toFixed(2) + '%';
+    }
+
+    lastY = y;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ── IntersectionObserver reveals
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+      }
+    });
+  }, { threshold: 0.22, rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(el => io.observe(el));
+})();
+</script>
+
+<script>
+// Letter open/close + persist contents
+(function () {
+  const letter = document.getElementById('letter');
+  const env    = document.getElementById('letterEnv');
+  const paper  = document.getElementById('letterPaper');
+  const paperText = document.getElementById('letterPaperText');
+  const closeBtn  = document.getElementById('letterClose');
+  if (!letter || !env || !paperText) return;
+
+  const KEY = 'anniversary-letter-v1';
+  const DEFAULT = 'My dearest Serezhа.<br><br>Thank you so much for always making me laugh, loving me and making me the happiest girl in the world. Sorry for my doubts and moody changes in mood. Thank you for always listening to me and being so patient.<br><br>I must\'ve done something good in my previous life to deserve such an incredible man like you. I love you and our life together and I will cherish it forever.<br><br>Snezhok<br>May 20, 2026';
+  paperText.innerHTML = localStorage.getItem(KEY) || DEFAULT;
+
+  paperText.addEventListener('input', () => {
+    localStorage.setItem(KEY, paperText.innerHTML);
+  });
+
+  env.addEventListener('click', (e) => {
+    if (letter.classList.contains('open')) return;
+    if (e.target === closeBtn) return;
+    letter.classList.add('open');
+    setTimeout(() => paperText.focus(), 700);
+  });
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    letter.classList.remove('open');
+  });
+})();
+</script>
+<div id="tweaks-root"></div>
+<script type="text/babel">
+(function () {
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "heroTop": 38,
+    "heroSize": 6.2,
+    "subBottom": 18,
+    "subShow": true
+  }/*EDITMODE-END*/;
+
+  function App() {
+    const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+    React.useEffect(() => {
+      const r = document.documentElement.style;
+      r.setProperty('--hero-top', t.heroTop + '%');
+      r.setProperty('--hero-size', t.heroSize + 'vw');
+      const sub = document.querySelector('.hero__sub');
+      if (sub) {
+        sub.style.bottom = t.subBottom + '%';
+        sub.style.display = t.subShow ? '' : 'none';
+      }
+    }, [t]);
+    return (
+      <TweaksPanel title="Tweaks">
+        <TweakSection title="Hero title">
+          <TweakSlider label="Vertical position" value={t.heroTop}
+            min={5} max={85} step={1} suffix="%"
+            onChange={v => setTweak('heroTop', v)} />
+          <TweakSlider label="Title size" value={t.heroSize}
+            min={3} max={14} step={0.1} suffix="vw"
+            onChange={v => setTweak('heroSize', v)} />
+        </TweakSection>
+        <TweakSection title="Subtitle">
+          <TweakToggle label="Show subtitle" value={t.subShow}
+            onChange={v => setTweak('subShow', v)} />
+          <TweakSlider label="Distance from bottom" value={t.subBottom}
+            min={4} max={40} step={1} suffix="%"
+            onChange={v => setTweak('subBottom', v)} />
+        </TweakSection>
+      </TweaksPanel>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<App />);
+})();
+</script>
+</body>
+</html>
