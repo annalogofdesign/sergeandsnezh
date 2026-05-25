@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Our Story · Sergey &amp; Snezhok</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+<link rel="preload" as="image" href="project/assets/hero-sky.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Meddon&family=Marck+Script&display=swap" rel="stylesheet">
@@ -66,7 +67,7 @@
   /* slow drifting cloud images */
   .cloud {
     position: absolute; pointer-events: none;
-    background: url("project/assets/cloud.png") center / contain no-repeat;
+    background: url("project/assets/cloud.webp") center / contain no-repeat;
     opacity: 0; mix-blend-mode: screen;
     will-change: transform;
   }
@@ -89,7 +90,7 @@
   }
   .hero__photo {
     position: absolute; inset: 0;
-    background: url("project/assets/hero-sky.jpg") center center / cover no-repeat;
+    background: url("project/assets/hero-sky.webp") center center / cover no-repeat;
     will-change: transform;
   }
   .hero__photo::after {
@@ -679,7 +680,7 @@
     <div class="row right reveal" data-reveal>
       <div class="photo"><div class="cluster">
         <div class="polaroid portrait" style="--tilt:-5deg;">
-          <div class="imgwrap" style="background-image:url('project/assets/burning-man.jpg');"></div>
+          <div class="imgwrap" style="background-image:url('project/assets/burning-man.webp');"></div>
           <div class="caption">exploring the playa</div>
         </div>
         <div class="polaroid" style="--tilt:6deg;">
